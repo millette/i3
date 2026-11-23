@@ -1,7 +1,11 @@
 #!/bin/sh
 # Wrapper so bar configs can call `sbs ...`. Symlink it into your PATH:
 #   ln -s "$PWD/bin/sbs" ~/.local/bin/sbs
-# Runs the TypeScript with nub (https://nubjs.com). Set SB_RUNTIME to use
-# something else, e.g. SB_RUNTIME="node --experimental-strip-types".
+# Runs the TypeScript with nub (https://nubjs.com) when installed, else with
+# Node >= 26 (type stripping is built in). SB_RUNTIME overrides both.
 here=$(dirname "$(readlink -f "$0")")
-exec ${SB_RUNTIME:-nub} "$here/sbs.ts" "$@"
+if [ -n "$SB_RUNTIME" ]; then rt=$SB_RUNTIME
+elif command -v nub >/dev/null 2>&1; then rt=nub
+else rt=node
+fi
+exec $rt "$here/sbs.ts" "$@"

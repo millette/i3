@@ -1,4 +1,8 @@
 #!/bin/sh
 # Starts lemonbar and feeds it. Extra arguments go to lemonbar. See lemonbar/i3.conf.
 here=$(dirname "$(readlink -f "$0")")
-exec ${SB_RUNTIME:-nub} "$here/lemonbar-feed.ts" "$@"
+if [ -n "$SB_RUNTIME" ]; then rt=$SB_RUNTIME
+elif command -v nub >/dev/null 2>&1; then rt=nub
+else rt=node
+fi
+exec $rt "$here/lemonbar-feed.ts" "$@"

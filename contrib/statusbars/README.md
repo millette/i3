@@ -21,7 +21,7 @@ once, and switching bars is just a matter of trying another config.
 
 ## Install
 
-Requires [nub](https://nubjs.com) (or Node ≥ 22.6, see below), `playerctl` for the
+Requires Node ≥ 26 (runs `.ts` directly), with [nub](https://nubjs.com) used when it is installed (`.node-version` pins Node 26 for it), `playerctl` for the
 now playing fallback, `gdbus` (from GLib) for workrave and `notify-send` for
 workrave details.
 
@@ -35,7 +35,7 @@ sbs pomodoro                                                 # → 🍅 start
 
 Then copy the bar's config into place (the first comment in each file gives the
 path) and follow its `i3.conf`. `~/.local/bin` must be on the `PATH` that i3
-starts with. Without nub, set `SB_RUNTIME="node --experimental-strip-types --no-warnings"`.
+starts with. The wrappers use `nub` when it is on `PATH`, else `node`; set `SB_RUNTIME` to force one.
 
 ## `sbs`
 
@@ -125,7 +125,7 @@ Workrave is not running.
 bin/sbs.ts             CLI used by every config
 bin/i3bar-status.ts    i3bar status_command (i3bar protocol, click events)
 bin/lemonbar-feed.ts   starts lemonbar, feeds it, runs its click commands
-bin/sbs, bin/i3bar-status, bin/lemonbar-feed   sh wrappers that call nub
+bin/sbs, bin/i3bar-status, bin/lemonbar-feed   sh wrappers: nub if installed, else node
 lib/sources.ts         now playing, pomodoro, workrave, palette, click map
 lib/format.ts          one renderer per bar format (escaping included)
 lib/workspaces.ts      i3 workspaces for eww, lemonbar, xmobar, Quickshell
@@ -136,11 +136,11 @@ test/                  node:test unit tests (npm test / nub run test)
 
 * Tested: `sbs` in every format, actions, `--follow` with the SIGUSR2 refresh,
   `i3bar-status` with simulated i3bar clicks, `lemonbar-feed` against a fake
-  lemonbar, and workrave parsing against a fake `gdbus`. Unit tests pass and
-  the code passes `tsc --strict`.
+  lemonbar, and workrave parsing against a fake `gdbus`, all on Node 26.13 with no
+  flags. Unit tests pass (`npm test`) and the code passes `tsc --strict`.
 * Not run against the real programs (none were installed where this was written):
   i3status-rust, polybar, eww, yambar, Quickshell, lemonbar, xmobar, Workrave,
-  now-playing-straw and nub itself. The configs follow each program's documented
+  now-playing-straw and nub itself (only plain `node` was used). The configs follow each program's documented
   syntax, but expect small fixes on first start. The most likely to need them are
   yambar (`~visible` conditions), eww (`:onscroll`) and Quickshell
   (`Quickshell.execDetached` needs a recent version).
