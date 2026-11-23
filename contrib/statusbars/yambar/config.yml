@@ -1,0 +1,100 @@
+# yambar: ~/.config/yambar/config.yml. Requires `sbs` on PATH.
+# The script modules run `sbs <source> --format yambar --follow`, which prints
+# tags (icon, text, short, state, visible) followed by an empty line per change.
+# Colours come from the `state` tag; yambar colours are RRGGBBAA.
+#
+# script `path` must be absolute, hence /usr/bin/env.
+
+colors: &colors
+  idle: &idle a6adc8ff
+  info: &info 89b4faff
+  good: &good a6e3a1ff
+  warning: &warning fab387ff
+  critical: &critical f38ba8ff
+
+# Colour a script module's {text} by its state.
+by_state: &by_state
+  map:
+    conditions:
+      ~visible: {empty: {}}
+      state == critical: {string: {text: " {text} ", foreground: 1e1e2eff, deco: {background: {color: *critical}}}}
+      state == warning: {string: {text: "{text}", foreground: *warning}}
+      state == good: {string: {text: "{text}", foreground: *good}}
+      state == info: {string: {text: "{text}", foreground: *info}}
+    default: {string: {text: "{text}", foreground: *idle}}
+
+bar:
+  location: top
+  height: 26
+  background: 1e1e2eff
+  foreground: cdd6f4ff
+  font: monospace:pixelsize=14, Noto Color Emoji:pixelsize=14
+  spacing: 6
+  margin: 8
+
+  left:
+    - i3:
+        sort: native
+        content:
+          "":
+            map:
+              conditions:
+                state == focused:
+                  string: {text: " {name} ", deco: {background: {color: 45475aff}}, on-click: "i3-msg --quiet workspace {name}"}
+                state == urgent:
+                  string: {text: " {name} ", foreground: 1e1e2eff, deco: {background: {color: *critical}}, on-click: "i3-msg --quiet workspace {name}"}
+              default:
+                string: {text: " {name} ", on-click: "i3-msg --quiet workspace {name}"}
+
+  center:
+    - script:
+        path: /usr/bin/env
+        args: [sbs, now-playing, --format, yambar, --follow]
+        content:
+          - map:
+              conditions:
+                ~visible: {empty: {}}
+              default:
+                list:
+                  spacing: 6
+                  items:
+                    - string: {text: "⏮", on-click: "sbs now-playing previous"}
+                    - string:
+                        text: "{icon} {text}"
+                        foreground: *good
+                        on-click:
+                          left: sbs now-playing toggle
+                          middle: sbs now-playing previous
+                          right: sbs now-playing next
+                          wheel-up: sbs now-playing previous
+                          wheel-down: sbs now-playing next
+                    - string: {text: "⏭", on-click: "sbs now-playing next"}
+
+  right:
+    - script:
+        path: /usr/bin/env
+        args: [sbs, pomodoro, --format, yambar, --follow]
+        content:
+          - list:
+              on-click:
+                left: sbs pomodoro toggle
+                middle: sbs pomodoro reset
+                right: sbs pomodoro skip
+              items:
+                - string: {text: "{icon} "}
+                - *by_state
+    - script:
+        path: /usr/bin/env
+        args: [sbs, workrave, --format, yambar, --follow]
+        content:
+          - list:
+              on-click:
+                left: sbs workrave details
+                right: sbs workrave open
+              items:
+                - *by_state
+    - clock:
+        date-format: "%a %d %b"
+        time-format: "%H:%M"
+        content:
+          - string: {text: "{date} {time}"}

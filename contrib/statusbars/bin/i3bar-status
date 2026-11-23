@@ -1,0 +1,4 @@
+#!/bin/sh
+# i3 `status_command` written in TypeScript. See i3bar/i3.conf.
+here=$(dirname "$(readlink -f "$0")")
+exec ${SB_RUNTIME:-nub} "$here/i3bar-status.ts" "$@"

@@ -1,0 +1,63 @@
+; eww: ~/.config/eww/eww.yuck (+ eww.scss). Requires `sbs` on PATH.
+; Every source is a `deflisten` on `sbs <source> --format json --follow`, which
+; prints {"icon","text","short","state","color","label","visible",...} per change.
+; Clicks run `sbs <source> <action>`, which refreshes the listener at once.
+
+(deflisten workspaces :initial "[]"
+  "sbs workspaces --format json --follow")
+(deflisten nowplaying :initial '{"visible":false,"label":"","state":"idle","tooltip":""}'
+  "sbs now-playing --format json --follow")
+(deflisten pomodoro :initial '{"visible":true,"label":"🍅","state":"idle","tooltip":""}'
+  "sbs pomodoro --format json --follow")
+(deflisten workrave :initial '{"visible":true,"label":"👁","state":"idle","tooltip":""}'
+  "sbs workrave --format json --follow")
+(defpoll clock :interval "10s" "date '+%a %d %b %H:%M'")
+
+(defwidget workspaces-w []
+  (box :class "workspaces" :space-evenly false :spacing 2
+    (for ws in workspaces
+      (button :class "ws ${ws.focused ? 'focused' : ''} ${ws.urgent ? 'urgent' : ''}"
+              :onclick "sbs workspaces focus ${ws.num >= 0 ? ws.num : ws.name}"
+        "${ws.name}"))))
+
+(defwidget now-playing-w []
+  (box :class "module now-playing ${nowplaying.state}" :visible {nowplaying.visible}
+       :space-evenly false :spacing 6 :tooltip {nowplaying.tooltip}
+    (button :class "ctl" :onclick "sbs now-playing previous" "⏮")
+    (eventbox :onscroll "sbs now-playing $([ {} = up ] && echo previous || echo next)"
+      (button :onclick "sbs now-playing toggle"
+              :onmiddleclick "sbs now-playing previous"
+              :onrightclick "sbs now-playing next"
+        (label :limit-width 60 :text {nowplaying.label})))
+    (button :class "ctl" :onclick "sbs now-playing next" "⏭")))
+
+(defwidget pomodoro-w []
+  (button :class "module pomodoro ${pomodoro.state}" :tooltip {pomodoro.tooltip}
+          :onclick "sbs pomodoro toggle"
+          :onmiddleclick "sbs pomodoro reset"
+          :onrightclick "sbs pomodoro skip"
+    (label :text {pomodoro.label})))
+
+(defwidget workrave-w []
+  (button :class "module workrave ${workrave.state}" :tooltip {workrave.tooltip}
+          :onclick "sbs workrave details"
+          :onrightclick "sbs workrave open"
+    (label :text {workrave.label})))
+
+(defwidget bar []
+  (centerbox :class "bar"
+    (box :halign "start" (workspaces-w))
+    (box :halign "center" (now-playing-w))
+    (box :halign "end" :space-evenly false :spacing 12
+      (pomodoro-w)
+      (workrave-w)
+      (label :class "clock" :text clock))))
+
+(defwindow bar
+  :monitor 0
+  :windowtype "dock"
+  :wm-ignore false
+  :stacking "fg"
+  :geometry (geometry :x "0%" :y "0%" :width "100%" :height "26px" :anchor "top center")
+  :reserve (struts :side "top" :distance "26px")
+  (bar))

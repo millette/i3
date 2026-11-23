@@ -1,0 +1,50 @@
+// eww: ~/.config/eww/eww.scss
+$bg: #1e1e2e;
+$fg: #cdd6f4;
+$surface: #45475a;
+$idle: #a6adc8;
+$info: #89b4fa;
+$good: #a6e3a1;
+$warning: #fab387;
+$critical: #f38ba8;
+
+* {
+  all: unset;
+  font-family: monospace, "Noto Color Emoji";
+  font-size: 13px;
+}
+
+.bar {
+  background-color: $bg;
+  color: $fg;
+  padding: 0 8px;
+}
+
+.ws {
+  padding: 0 6px;
+  border-radius: 4px;
+  &:hover { background-color: rgba($surface, 0.6); }
+  &.focused { background-color: $surface; }
+  &.urgent { background-color: $critical; color: $bg; }
+}
+
+.module {
+  padding: 0 8px;
+  border-radius: 6px;
+  transition: background-color 200ms ease;
+  &:hover { background-color: rgba($surface, 0.6); }
+}
+
+.ctl { padding: 0 4px; color: $idle; &:hover { color: $fg; } }
+
+// `state` from sbs drives the colour of each module.
+.idle { color: $idle; }
+.info { color: $info; }
+.good { color: $good; }
+.warning { color: $warning; }
+.critical {
+  color: $bg;
+  background-color: $critical;
+}
+
+.clock { color: $fg; }

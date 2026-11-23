@@ -1,0 +1,25 @@
+-- xmobar: ~/.config/xmobar/xmobarrc. Requires `sbs` on PATH.
+-- Every source is a CommandReader on `sbs <source> --format xmobar --follow`,
+-- which prints <fc=...> colours and <action=...> click areas itself
+-- (left/middle/right/scroll), including ⏮ / ⏭ buttons around now playing.
+-- overrideRedirect = False so i3 treats xmobar as a dock and reserves space.
+Config
+  { font = "Monospace 11"
+  , additionalFonts = ["Noto Color Emoji 10"]
+  , bgColor = "#1e1e2e"
+  , fgColor = "#cdd6f4"
+  , position = TopH 26
+  , lowerOnStart = True
+  , overrideRedirect = False
+  , persistent = True
+  , commands =
+      [ Run CommandReader "sbs workspaces --format xmobar --follow" "ws"
+      , Run CommandReader "sbs now-playing --format xmobar --follow" "nowplaying"
+      , Run CommandReader "sbs pomodoro --format xmobar --follow" "pomodoro"
+      , Run CommandReader "sbs workrave --format xmobar --follow" "workrave"
+      , Run Date "%a %d %b %H:%M" "date" 100
+      ]
+  , sepChar = "%"
+  , alignSep = "}{"
+  , template = " %ws% }%nowplaying%{ %pomodoro%  <fc=#45475a>│</fc>  %workrave%  <fc=#45475a>│</fc>  %date% "
+  }

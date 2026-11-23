@@ -1,0 +1,7 @@
+#!/bin/sh
+# Wrapper so bar configs can call `sbs ...`. Symlink it into your PATH:
+#   ln -s "$PWD/bin/sbs" ~/.local/bin/sbs
+# Runs the TypeScript with nub (https://nubjs.com). Set SB_RUNTIME to use
+# something else, e.g. SB_RUNTIME="node --experimental-strip-types".
+here=$(dirname "$(readlink -f "$0")")
+exec ${SB_RUNTIME:-nub} "$here/sbs.ts" "$@"

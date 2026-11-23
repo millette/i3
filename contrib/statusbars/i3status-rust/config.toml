@@ -1,0 +1,77 @@
+# i3status-rust: ~/.config/i3status-rust/config.toml
+# Requires `sbs` on PATH (see ../README.md).
+#
+# Each custom block runs `sbs <source> --format i3rs --follow`: one JSON line
+# per change, {"state": "Good", "text": "...", "short_text": "..."}.
+# `state` picks the theme colours below; clicks run `sbs <source> <action>`,
+# which also pokes the follower so the block updates immediately.
+
+[theme]
+theme = "native"
+[theme.overrides]
+idle_fg = "#a6adc8"
+info_fg = "#89b4fa"
+good_fg = "#a6e3a1"
+warning_fg = "#fab387"
+critical_fg = "#f38ba8"
+
+[icons]
+icons = "none"
+
+# ------------------------------------------------------------- now playing
+[[block]]
+block = "custom"
+command = "sbs now-playing --format i3rs --follow"
+persistent = true
+json = true
+hide_when_empty = true
+[[block.click]]
+button = "left"
+cmd = "sbs now-playing toggle"
+[[block.click]]
+button = "middle"
+cmd = "sbs now-playing previous"
+[[block.click]]
+button = "right"
+cmd = "sbs now-playing next"
+[[block.click]]
+button = "up"
+cmd = "sbs now-playing previous"
+[[block.click]]
+button = "down"
+cmd = "sbs now-playing next"
+
+# ---------------------------------------------------------------- pomodoro
+[[block]]
+block = "custom"
+command = "sbs pomodoro --format i3rs --follow"
+persistent = true
+json = true
+[[block.click]]
+button = "left"
+cmd = "sbs pomodoro toggle"
+[[block.click]]
+button = "middle"
+cmd = "sbs pomodoro reset"
+[[block.click]]
+button = "right"
+cmd = "sbs pomodoro skip"
+
+# ---------------------------------------------------------------- workrave
+[[block]]
+block = "custom"
+command = "sbs workrave --format i3rs --follow"
+persistent = true
+json = true
+[[block.click]]
+button = "left"
+cmd = "sbs workrave details"
+[[block.click]]
+button = "right"
+cmd = "sbs workrave open"
+
+# -------------------------------------------------------------------- time
+[[block]]
+block = "time"
+interval = 60
+format = " $timestamp.datetime(f:'%a %d %b %H:%M') "
