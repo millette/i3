@@ -1,10 +1,10 @@
-# i3status-rust: ~/.config/i3status-rust/config.toml
-# Requires `sbs` on PATH (see ../README.md).
+# i3status-rust: copy this whole folder to ~/.config/i3status-rust/
+# (config.toml, scripts/). Needs Node >= 26; nothing else from this repo.
 #
-# Each custom block runs `sbs <source> --format i3rs --follow`: one JSON line
-# per change, {"state": "Good", "text": "...", "short_text": "..."}.
-# `state` picks the theme colours below; clicks run `sbs <source> <action>`,
-# which also pokes the follower so the block updates immediately.
+# Each custom block runs `scripts/<source>.ts --follow`: one JSON line per
+# change, {"state": "Good", "text": "...", "short_text": "..."}. `state` picks
+# the theme colours below. Clicks run `scripts/<source>.ts <action>`, which
+# also tells the running block to update immediately.
 
 [theme]
 theme = "native"
@@ -21,54 +21,54 @@ icons = "none"
 # ------------------------------------------------------------- now playing
 [[block]]
 block = "custom"
-command = "sbs now-playing --format i3rs --follow"
+command = "~/.config/i3status-rust/scripts/now-playing.ts --follow"
 persistent = true
 json = true
 hide_when_empty = true
 [[block.click]]
 button = "left"
-cmd = "sbs now-playing toggle"
+cmd = "~/.config/i3status-rust/scripts/now-playing.ts toggle"
 [[block.click]]
 button = "middle"
-cmd = "sbs now-playing previous"
+cmd = "~/.config/i3status-rust/scripts/now-playing.ts previous"
 [[block.click]]
 button = "right"
-cmd = "sbs now-playing next"
+cmd = "~/.config/i3status-rust/scripts/now-playing.ts next"
 [[block.click]]
 button = "up"
-cmd = "sbs now-playing previous"
+cmd = "~/.config/i3status-rust/scripts/now-playing.ts previous"
 [[block.click]]
 button = "down"
-cmd = "sbs now-playing next"
+cmd = "~/.config/i3status-rust/scripts/now-playing.ts next"
 
 # ---------------------------------------------------------------- pomodoro
 [[block]]
 block = "custom"
-command = "sbs pomodoro --format i3rs --follow"
+command = "~/.config/i3status-rust/scripts/pomodoro.ts --follow"
 persistent = true
 json = true
 [[block.click]]
 button = "left"
-cmd = "sbs pomodoro toggle"
+cmd = "~/.config/i3status-rust/scripts/pomodoro.ts toggle"
 [[block.click]]
 button = "middle"
-cmd = "sbs pomodoro reset"
+cmd = "~/.config/i3status-rust/scripts/pomodoro.ts reset"
 [[block.click]]
 button = "right"
-cmd = "sbs pomodoro skip"
+cmd = "~/.config/i3status-rust/scripts/pomodoro.ts skip"
 
 # ---------------------------------------------------------------- workrave
 [[block]]
 block = "custom"
-command = "sbs workrave --format i3rs --follow"
+command = "~/.config/i3status-rust/scripts/workrave.ts --follow"
 persistent = true
 json = true
 [[block.click]]
 button = "left"
-cmd = "sbs workrave details"
+cmd = "~/.config/i3status-rust/scripts/workrave.ts details"
 [[block.click]]
 button = "right"
-cmd = "sbs workrave open"
+cmd = "~/.config/i3status-rust/scripts/workrave.ts open"
 
 # -------------------------------------------------------------------- time
 [[block]]

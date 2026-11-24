@@ -21,13 +21,20 @@ const escapeXmobar = (s: string) => s.replace(/</g, "‹").replace(/>/g, "›");
 const label = (s: Status) => (s.icon ? `${s.icon} ${s.text}` : s.text);
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
+/** Builds the shell command a bar runs on click. Defaults to `sbs <source> <action>`. */
+let commandFor = (source: string, action: string): string => `${env("SB_CMD", "sbs")} ${source} ${action}`;
+
+/** Per-bar scripts use this to make clicks call themselves instead of `sbs`. */
+export function setClickCommand(fn: (source: string, action: string) => string): void {
+  commandFor = fn;
+}
+
 /**
- * Command a bar runs on click. polybar and xmobar run it through sh, so it
- * needs the `sbs` wrapper; lemonbar-feed interprets the bare "<source> <action>".
+ * Command a bar runs on click. polybar and xmobar run it through sh;
+ * lemonbar-feed interprets the bare "<source> <action>".
  */
 function clickCommand(fmt: Format, source: string, action: string): string {
-  const cmd = `${source} ${action}`;
-  return fmt === "lemonbar" ? cmd : `${env("SB_CMD", "sbs")} ${cmd}`;
+  return fmt === "lemonbar" ? `${source} ${action}` : commandFor(source, action);
 }
 
 /** Wrap text in clickable areas, one per button that has an action. */

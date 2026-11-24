@@ -3,8 +3,11 @@
   "private": true,
   "type": "module",
   "description": "now-playing, pomodoro and workrave sources plus configs for i3 status bars",
-  "engines": { "node": ">=26" },
+  "engines": {
+    "node": ">=26"
+  },
   "scripts": {
-    "test": "node --test test/*.test.ts"
+    "test": "node --test test/*.test.ts",
+    "vendor": "node tools/vendor.ts"
   }
 }

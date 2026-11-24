@@ -4,22 +4,52 @@ Configs for eight i3 status bar setups. They all show the same three things,
 **now playing**, a **pomodoro** timer and **workrave** break timers, with the same
 colours and the same click actions.
 
-All bars get their data from one small TypeScript CLI, `sbs`, which prints each
-source in the format that bar understands. Your scripts only have to be wired up
-once, and switching bars is just a matter of trying another config.
+All bars get their data from one small TypeScript library (`lib/`), which prints
+each source in the format that bar understands. Your scripts only have to be
+wired up once, and switching bars is just a matter of trying another config.
 
-| Directory | Bar | Replaces i3bar? | Start from i3 |
-|---|---|---|---|
-| `i3status-rust/` | i3status-rust `custom` blocks | no | `i3status-rust/i3.conf` |
-| `i3bar/` | own `status_command` (`bin/i3bar-status.ts`) | no | `i3bar/i3.conf` |
-| `polybar/` | polybar `custom/script` | yes | `polybar/i3.conf` |
-| `eww/` | eww `deflisten` widgets + SCSS | yes | `eww/i3.conf` |
-| `yambar/` | yambar `script` modules | yes | `yambar/i3.conf` |
-| `quickshell/` | Quickshell QML (`Feed.qml`, `Segment.qml`) | yes | `quickshell/i3.conf` |
-| `lemonbar/` | lemonbar fed by `bin/lemonbar-feed.ts` | yes | `lemonbar/i3.conf` |
-| `xmobar/` | xmobar `CommandReader` | yes | `xmobar/i3.conf` |
+**polybar** and **i3status-rust** are self-contained: each folder has its own
+`scripts/` (`now-playing.ts`, `pomodoro.ts`, `workrave.ts` plus a copy of `lib/`),
+so you copy the folder to `~/.config/` and need nothing else from this repo.
+The other bars call the shared `sbs` CLI.
 
-## Install
+| Directory | Bar | Replaces i3bar? | Scripts | Start from i3 |
+|---|---|---|---|---|
+| `i3status-rust/` | i3status-rust `custom` blocks | no | own `scripts/` | `i3status-rust/i3.conf` |
+| `polybar/` | polybar `custom/script` | yes | own `scripts/` | `polybar/i3.conf` |
+| `i3bar/` | own `status_command` (`bin/i3bar-status.ts`) | no | `bin/` | `i3bar/i3.conf` |
+| `eww/` | eww `deflisten` widgets + SCSS | yes | `sbs` | `eww/i3.conf` |
+| `yambar/` | yambar `script` modules | yes | `sbs` | `yambar/i3.conf` |
+| `quickshell/` | Quickshell QML (`Feed.qml`, `Segment.qml`) | yes | `sbs` | `quickshell/i3.conf` |
+| `lemonbar/` | lemonbar fed by `bin/lemonbar-feed.ts` | yes | `bin/` | `lemonbar/i3.conf` |
+| `xmobar/` | xmobar `CommandReader` | yes | `sbs` | `xmobar/i3.conf` |
+
+## Install: polybar or i3status-rust
+
+```sh
+cp -r contrib/statusbars/polybar/.        ~/.config/polybar/         # or
+cp -r contrib/statusbars/i3status-rust/.  ~/.config/i3status-rust/
+~/.config/polybar/scripts/pomodoro.ts                                # → 🍅 start (polybar markup)
+```
+
+Then add the folder's `i3.conf` to your i3 config. The scripts start with
+`#!/usr/bin/env node`, so `node` (version 26 or later) must be on the `PATH`
+that i3 starts with. If you use a version manager, link its Node 26 into
+`~/.local/bin` or similar.
+
+Each script takes the same arguments:
+
+```
+<source>.ts                      print once
+<source>.ts --follow             print on every change (what the bar runs)
+<source>.ts <action>             e.g. pomodoro.ts toggle; refreshes the bar at once
+<source>.ts click <button>       left|middle|right|up|down → action from the click table
+```
+
+The scripts are generated from `lib/`. Edit `lib/`, then run `npm run vendor`.
+`npm test` fails if the copies are out of date.
+
+## Install: the other bars
 
 Requires Node ≥ 26 (runs `.ts` directly), with [nub](https://nubjs.com) used when it is installed (`.node-version` pins Node 26 for it), `playerctl` for the
 now playing fallback, `gdbus` (from GLib) for workrave and `notify-send` for
@@ -49,8 +79,10 @@ sbs workspaces focus <number|name>
 
 * sources: `now-playing`, `pomodoro`, `workrave`
 * formats: `plain`, `json` (eww, Quickshell), `i3rs`, `i3bar`, `polybar`, `lemonbar`, `xmobar`, `yambar`
-* `--follow` prints a new line whenever the output changes. An action (`sbs pomodoro toggle`)
-  sends `SIGUSR2` to the followers of that source so the bar updates immediately.
+* `--follow` prints a new line whenever the output changes. Followers register a PID file in
+  `$XDG_RUNTIME_DIR/statusbars/follow/<source>/`. An action (`sbs pomodoro toggle`) sends
+  `SIGUSR2` to them, after checking `/proc` that each PID is still a follower, so the bar
+  updates immediately.
 
 ### Clicks (same in every bar)
 
@@ -129,12 +161,16 @@ bin/sbs, bin/i3bar-status, bin/lemonbar-feed   sh wrappers: nub if installed, el
 lib/sources.ts         now playing, pomodoro, workrave, palette, click map
 lib/format.ts          one renderer per bar format (escaping included)
 lib/workspaces.ts      i3 workspaces for eww, lemonbar, xmobar, Quickshell
+lib/entry.ts           entry point used by the per-bar scripts
+polybar/scripts/, i3status-rust/scripts/   generated per-bar scripts + lib copy
+tools/vendor.ts        generates those (npm run vendor)
 test/                  node:test unit tests (npm test / nub run test)
 ```
 
 ## Status
 
-* Tested: `sbs` in every format, actions, `--follow` with the SIGUSR2 refresh,
+* Tested: the polybar and i3status-rust scripts copied outside the repo (print,
+  actions, clicks, `--follow` started through `sh -c` like the bars do), `sbs` in every format, actions, `--follow` with the SIGUSR2 refresh,
   `i3bar-status` with simulated i3bar clicks, `lemonbar-feed` against a fake
   lemonbar, and workrave parsing against a fake `gdbus`, all on Node 26.13 with no
   flags. Unit tests pass (`npm test`) and the code passes `tsc --strict`.

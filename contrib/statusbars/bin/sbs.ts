@@ -60,7 +60,7 @@ try {
       await focusWorkspace(rest.slice(1).join(" "));
     } else {
       const once = async () => renderWorkspaces(await workspaces(), fmt, values.output);
-      if (values.follow) await follow(once, 30_000, watchWorkspaces);
+      if (values.follow) await follow(once, 30_000, { wakeOn: watchWorkspaces });
       else console.log(await once());
     }
   } else if (cmd === "click") {
@@ -74,7 +74,7 @@ try {
     } else {
       const once = async () => render(await READERS[cmd](), fmt);
       const interval = values.interval ? Number(values.interval) * 1000 : INTERVALS[cmd];
-      if (values.follow) await follow(once, interval);
+      if (values.follow) await follow(once, interval, { source: cmd });
       else console.log(await once());
     }
   } else {
