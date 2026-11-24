@@ -169,6 +169,10 @@ test/                  node:test unit tests (npm test / nub run test)
 
 ## Status
 
+See [NOTES.md](NOTES.md) for a first real use of the i3status-rust option
+(i3status-rust 0.36.2, Workrave 1.11.5), which confirms the workrave source
+and lists what needed fixing.
+
 * Tested: the polybar and i3status-rust scripts copied outside the repo (print,
   actions, clicks, `--follow` started through `sh -c` like the bars do), `sbs` in every format, actions, `--follow` with the SIGUSR2 refresh,
   `i3bar-status` with simulated i3bar clicks, `lemonbar-feed` against a fake
